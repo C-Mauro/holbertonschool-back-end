@@ -1,31 +1,24 @@
 #!/usr/bin/python3
+"""
+Gather data from an API
+"""
 import requests
+from sys import argv
 
-def get_employee_todo_progress(employee_id):
-    base_url = "https://jsonplaceholder.typicode.com"
-    employee_url = f"{base_url}/users/{employee_id}"
-    todo_url = f"{base_url}/todos?userId={employee_id}"
 
-    # Fetch employee information
-    response = requests.get(employee_url)
-    employee_data = response.json()
-    employee_name = employee_data["name"]
+if __name__ == "__main__":
+    emp_id = argv[1]
 
-    # Fetch TODO list for the employee
-    response = requests.get(todo_url)
-    todo_data = response.json()
+    url = "https://jsonplaceholder.typicode.com/"
+    user = requests.get(url + "users/", params={"id": emp_id}).json()
+    tasks = requests.get(url + "todos/", params={"userId": emp_id}).json()
 
-    # Calculate TODO list progress
-    total_tasks = len(todo_data)
-    done_tasks = [task for task in todo_data if task["completed"]]
-    num_done_tasks = len(done_tasks)
+    name = user[0].get("name") if len(user) > 0 else None
+    tasks_d = [task.get('title') for task in tasks
+               if task.get('completed') is True]
+    tasks_t, tasks_c = len(tasks), len(tasks_d)
 
-    # Display progress information
-    print(f"Employee {employee_name} is done with tasks ({num_done_tasks}/{total_tasks}):")
-    for task in done_tasks:
-        print(f"\t{task['title']}")
-
-# Usage example
-employee_id = 1
-get_employee_todo_progress(employee_id)
-
+    print("Employee {} is done with tasks({}/{}):".format(name,
+                                                          tasks_c,
+                                                          tasks_t))
+    [print("\t {}".format(task)) for task in tasks_d]
