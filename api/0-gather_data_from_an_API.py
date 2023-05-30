@@ -1,24 +1,30 @@
 #!/usr/bin/python3
 """
-Gather data from an API
+Module for task0 about request and API
 """
+
 import requests
 from sys import argv
 
+url_base = 'https://jsonplaceholder.typicode.com/users/'
 
-if __name__ == "__main__":
-    emp_id = argv[1]
 
-    url = "https://jsonplaceholder.typicode.com/"
-    user = requests.get(url + "users/", params={"id": emp_id}).json()
-    tasks = requests.get(url + "todos/", params={"userId": emp_id}).json()
+def get_data():
+    """ This function get data of the placeholders API """
+    name = requests.get(url_base + argv[1]).json()
+    todos = requests.get(url_base + argv[1] + '/todos/').json()
+    count = 0
+    title = ""
 
-    name = user[0].get("name") if len(user) > 0 else None
-    tasks_d = [task.get('title') for task in tasks
-               if task.get('completed') is True]
-    tasks_t, tasks_c = len(tasks), len(tasks_d)
+    for item in todos:
+        if item['completed'] is True:
+            title += "\t {}\n".format(item['title'])
+            count += 1
 
-    print("Employee {} is done with tasks({}/{}):".format(name,
-                                                          tasks_c,
-                                                          tasks_t))
-    [print("\t {}".format(task)) for task in tasks_d]
+    print("Employee {} is done with tasks({}/20):\n{}".format(name['name'],
+                                                              count, title),
+          end='')
+
+
+if __name__ == '__main__':
+    get_data()
